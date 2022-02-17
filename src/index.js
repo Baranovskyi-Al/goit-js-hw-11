@@ -3,13 +3,13 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 import { fetchImages } from './js/fetchImages';
 import { renderGallery } from './js/renderGallery';
-import { onScroll, OnTopButtonClick } from './js/scrollOnTop';
 import {
   ifImagesFoundAlert,
   ifNoImagesFoundAlert,
   ifEndOfSearchAlert,
   ifNoEmptySearchAlert,
 } from './js/alerts';
+import { onScroll, OnTopButtonClick } from './js/scrollOnTop';
 
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
@@ -21,8 +21,7 @@ let simpleLightBox;
 const perPage = 40;
 
 searchForm.addEventListener('submit', onSearchFormButtonClick);
-
-loadMoreButton.addEventListener('click', onLoadMoreButtonClick);
+loadMoreButton.addEventListener('click', renderNextPage);
 window.addEventListener('scroll', infinityScroll);
 
 function onSearchFormButtonClick(element) {
@@ -46,6 +45,10 @@ function onSearchFormButtonClick(element) {
           simpleLightBox = new SimpleLightbox('.gallery a').refresh();
           ifImagesFoundAlert(data);
 
+          // Для включения кнопки раскомментировать код ниже
+          // и закомментировать функцию infinityScroll
+          // Подумать над добавлением переключения режимов!!!
+
           // if (data.totalHits > perPage) {
           //   loadMoreButton.classList.remove('visualy-hidden');
           // }
@@ -55,9 +58,8 @@ function onSearchFormButtonClick(element) {
   }
 }
 
-function onLoadMoreButtonClick() {
+function renderNextPage() {
   page += 1;
-  onLoadMoreButtonClick;
   simpleLightBox.destroy();
 
   fetchImages(query, page, perPage)
@@ -82,20 +84,6 @@ function infinityScroll() {
   const y = yOffset + windowHeight;
 
   if (y >= galleryPageHeight) {
-    page += 1;
-    simpleLightBox.destroy();
-
-    fetchImages(query, page, perPage)
-      .then(({ data }) => {
-        renderGallery(data.hits);
-        simpleLightBox = new SimpleLightbox('.gallery a').refresh();
-
-        const totalPages = Math.ceil(data.totalHits / perPage);
-
-        if (page > totalPages) {
-          ifEndOfSearchAlert();
-        }
-      })
-      .catch(error => console.log(error));
+    renderNextPage();
   }
 }
