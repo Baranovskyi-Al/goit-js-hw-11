@@ -23,7 +23,7 @@ const perPage = 40;
 
 searchForm.addEventListener('submit', onSearchFormButtonClick);
 loadMoreButton.addEventListener('click', renderNextPage);
-window.addEventListener('scroll', debounce(infinityScroll, 1000));
+window.addEventListener('scroll', debounce(infinityScroll, 300));
 
 function onSearchFormButtonClick(element) {
   element.preventDefault();
@@ -44,6 +44,8 @@ function onSearchFormButtonClick(element) {
         } else {
           renderGallery(data.hits);
           simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+          console.log(data.hits);
+
           ifImagesFoundAlert(data);
 
           // Для включения кнопки раскомментировать код ниже
@@ -53,7 +55,6 @@ function onSearchFormButtonClick(element) {
           // if (data.totalHits > perPage) {
           //   loadMoreButton.classList.remove('visualy-hidden');
           // }
-          console.log(data.hits);
         }
       })
       .catch(error => console.log(error));
@@ -67,6 +68,7 @@ function renderNextPage() {
     .then(({ data }) => {
       renderGallery(data.hits);
       simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+      console.log(data.hits);
 
       const totalPages = Math.ceil(data.totalHits / perPage);
 
@@ -91,6 +93,7 @@ function infinityScroll() {
       .then(({ data }) => {
         renderGallery(data.hits);
         simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+        console.log(data.hits);
 
         const totalPages = Math.ceil(data.totalHits / perPage);
 
