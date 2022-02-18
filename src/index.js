@@ -1,5 +1,6 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import debounce from 'lodash.debounce';
 
 import { fetchImages } from './js/fetchImages';
 import { renderGallery } from './js/renderGallery';
@@ -22,7 +23,7 @@ const perPage = 40;
 
 searchForm.addEventListener('submit', onSearchFormButtonClick);
 loadMoreButton.addEventListener('click', renderNextPage);
-window.addEventListener('scroll', infinityScroll);
+window.addEventListener('scroll', debounce(infinityScroll, 1000));
 
 function onSearchFormButtonClick(element) {
   element.preventDefault();
@@ -52,6 +53,7 @@ function onSearchFormButtonClick(element) {
           // if (data.totalHits > perPage) {
           //   loadMoreButton.classList.remove('visualy-hidden');
           // }
+          console.log(data.hits);
         }
       })
       .catch(error => console.log(error));
@@ -60,7 +62,6 @@ function onSearchFormButtonClick(element) {
 
 function renderNextPage() {
   page += 1;
-  simpleLightBox.destroy();
 
   fetchImages(query, page, perPage)
     .then(({ data }) => {
@@ -84,6 +85,19 @@ function infinityScroll() {
   const y = yOffset + windowHeight;
 
   if (y >= galleryPageHeight) {
-    renderNextPage();
+    page += 1;
+
+    fetchImages(query, page, perPage)
+      .then(({ data }) => {
+        renderGallery(data.hits);
+        simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+
+        const totalPages = Math.ceil(data.totalHits / perPage);
+
+        if (page >= totalPages) {
+          ifEndOfSearchAlert();
+        }
+      })
+      .catch(error => console.log(error));
   }
 }
